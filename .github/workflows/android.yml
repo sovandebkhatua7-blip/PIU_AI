@@ -1,0 +1,42 @@
+
+name: Build PIU AI APK
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/android.yml'
+      - 'PIU_AI_v08_CompanionExtras_Source.zip'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.9'
+
+      - name: Extract project
+        run: unzip PIU_AI_v08_CompanionExtras_Source.zip
+
+      - name: Build APK
+        run: gradle -p PIU_AI_v08 assembleDebug
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: PIU-AI-debug-apk
+          path: PIU_AI_v08/app/build/outputs/apk/debug/*.apk
